@@ -8,8 +8,8 @@ const app = express();
 
 //Middlewares
 app.use(morgan('dev'));
-
 app.use(express.json());
+app.use(express.static(`${__dirname}/public`)); //For  Accessing  static files  Publically
 
 //Routes
 app.use('/api/v1/tours', tourRouter);
