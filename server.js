@@ -18,3 +18,15 @@ const port = 3002;
 app.listen(process.env.PORT, () => {
   console.log('Tour Project is Running..');
 });
+
+process.on('uncaughtException', (err) => {
+  console.log('uncaughtException EXCEPTION!! SHUTTING DOWN.....');
+  console.log(err.name, err.message);
+  process.exit(1);
+});
+
+process.on('uncaughtException', (err) => {
+  console.log('UNHANDLED EXCEPTION!! SHUTTING DOWN.....');
+  console.log(err.name, err.message);
+  process.exit(1);
+});
