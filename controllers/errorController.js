@@ -5,6 +5,9 @@ const handleCastError = (err) => {
   return new AppError(message, 400);
 };
 
+const handleJWTError = (err) =>
+  new AppError('Invalid Token Please Login Again', 401);
+
 const sendError = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -39,6 +42,8 @@ module.exports = (err, req, res, next) => {
     if (err.name === 'CastError') {
       error = handleCastError(error);
     }
+
+    if ((error.name = 'JsonWebTokenError')) error = handleJWTError(error);
     sendErrorProd(error, res);
   }
 };
