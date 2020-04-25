@@ -29,6 +29,9 @@ const tourSchema = new Schema(
     ratingsAverage: {
       type: Number,
       default: 4.5,
+      min: [1, 'Rating Must be above 1'],
+      max: [5, 'Rating Must be beloe 5'],
+      set: (val) => Math.round(val * 10) / 10,
     },
     ratingsQuantity: {
       type: Number,
@@ -117,6 +120,10 @@ tourSchema.virtual('testData').get(function () {
   return 'rishav';
 });
 
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+tourSchema.index({ startLocation: '2dsphere' });
+
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
@@ -132,11 +139,11 @@ tourSchema.pre('save', function (next) {
 // })
 
 // Query Middleware
-tourSchema.pre(/^find/, function (next) {
-  //Get all words which starts with find
-  this.find({ secretTour: { $ne: true } });
-  next();
-});
+// tourSchema.pre(/^find/, function (next) {
+//   //Get all words which starts with find
+//   this.find({ secretTour: { $ne: true } });
+//   next();
+// });
 
 tourSchema.pre(/^find/, function (next) {
   //Get all words which starts with find

@@ -1,27 +1,19 @@
 const Review = require('../models/reviewModel');
 const catchAsync = require('../utils/catchAsync');
+const factory = require('./handlerFactor');
 
-exports.getAllReviews = catchAsync(async (req, res, next) => {
-  const reviews = await Review.find().populate('user tour');
-  res.status(200).json({
-    status: 'Success',
-    data: {
-      reviews,
-    },
-  });
-});
+exports.getAllReviews = factory.getAll(Review);
 
-exports.createReview = catchAsync(async (req, res, next) => {
+exports.setTourUsersIds = (req, res, next) => {
   if (!req.body.tour) req.body.tour = req.params.tourId;
   if (!req.body.user) req.body.user = req.user.id;
-  console.log(req.body, 'userDetaials');
+  next();
+};
 
-  const review = await Review.create(req.body);
+exports.createReview = factory.createOne(Review);
 
-  res.status(201).json({
-    status: 'Success',
-    data: {
-      review,
-    },
-  });
-});
+exports.getReview = factory.getOne(Review);
+
+exports.updateReview = factory.updateOne(Review);
+
+exports.deleteReview = factory.deleteOne(Review);
