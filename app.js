@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -5,14 +6,21 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 
 const AppError = require('./utils/appError');
 const globalError = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const viewRouter = require('./routes/viewRoutes');
 
 const app = express();
+
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
+app.use(express.static(`${__dirname}/public`)); //For  Accessing  static files  Publically
 
 //Global Middlewares
 app.use(helmet());
@@ -28,6 +36,7 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(mongoSanitize());
 
@@ -39,9 +48,8 @@ app.use(
   })
 );
 
-app.use(express.static(`${__dirname}/public`)); //For  Accessing  static files  Publically
-
 //Routes
+app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
