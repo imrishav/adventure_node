@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const User = require('./userModel');
 const Schema = mongoose.Schema;
 
 const tourSchema = new Schema(
@@ -28,6 +29,9 @@ const tourSchema = new Schema(
     ratingsAverage: {
       type: Number,
       default: 4.5,
+      min: [1, 'Rating Must be above 1'],
+      max: [5, 'Rating Must be beloe 5'],
+      set: (val) => Math.round(val * 10) / 10,
     },
     ratingsQuantity: {
       type: Number,
@@ -61,6 +65,37 @@ const tourSchema = new Schema(
     },
     startDates: [Date],
     secretTour: { type: Boolean, default: false },
+    startLocation: {
+      //Geo Json
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
+    // guides: Array,
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
@@ -68,14 +103,35 @@ const tourSchema = new Schema(
   }
 );
 
+// tourSchema.pre('save', async function (next) {
+//   const guidesPromises = this.guides.map(async (id) => await User.findById(id));
+//   this.guides = await Promise.all(guidesPromises);
+//   next();
+// });
+
+//Virutal Polpulate
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+});
+
+tourSchema.virtual('testData').get(function () {
+  return 'rishav';
+});
+
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+tourSchema.index({ startLocation: '2dsphere' });
+
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
 //Doucment Middleware runs before save command & create()
-tourSchema.pre('save', function (nex) {
+tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
-  nex();
+  next();
 });
 
 // tourSchema.pre('save', function (doc,next) {
@@ -83,9 +139,18 @@ tourSchema.pre('save', function (nex) {
 // })
 
 // Query Middleware
+// tourSchema.pre(/^find/, function (next) {
+//   //Get all words which starts with find
+//   this.find({ secretTour: { $ne: true } });
+//   next();
+// });
+
 tourSchema.pre(/^find/, function (next) {
   //Get all words which starts with find
-  this.find({ secretTour: { $ne: true } });
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  });
   next();
 });
 
