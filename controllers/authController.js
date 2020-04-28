@@ -70,6 +70,51 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
+exports.logout = (req, res) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.status(200).json({
+    status: 'success',
+  });
+};
+
+exports.isLoggedIn = async (req, res, next) => {
+  //1.) Getting token & check if is there
+  if (req.cookies.jwt) {
+    try {
+      //2.) Validate the token
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET
+      );
+
+      console.log(decoded);
+
+      //3.Check if user still exists
+      const freshUser = await User.findById(decoded.userId);
+      if (!freshUser) {
+        return next();
+      }
+
+      //4.) if username changed pss after the token was issued
+      // freshUser.changedPassAfter(decoded.iat);
+      // if (freshUser.changedPassAfter(decoded.iat)) {
+      //   return next(
+      //     new AppError('User Recently Changed Password Please Login Again', 401)
+      //   );
+      // }
+      // Logged in User
+      res.locals.user = freshUser;
+      return next();
+    } catch (err) {
+      return next();
+    }
+  }
+  next();
+};
+
 exports.protect = catchAsync(async (req, res, next) => {
   //1.) Getting token & check if is there
   let token;
@@ -107,6 +152,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   //Access Granated...to other routes
   req.user = freshUser;
+  res.locals.user = freshUser;
   next();
 });
 
