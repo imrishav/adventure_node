@@ -3,7 +3,6 @@ import { login, logout } from './login';
 import { displayMap } from './maps';
 import { updateData } from './updateSettings';
 
-console.log('connected...');
 //Dom Elemnets
 const mapBox = document.getElementById('map');
 const loginform = document.querySelector('.form--login');
@@ -14,10 +13,12 @@ const userPasswordForm = document.querySelector('.form-user-password');
 if (userDataForm)
   userDataForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const email = document.getElementById('email').value;
-    const name = document.getElementById('name').value;
-    console.log(email);
-    updateData({ name, email }, 'data');
+    const form = new FormData();
+    form.append('name', document.getElementById('name').value);
+    form.append('email', document.getElementById('email').value);
+    form.append('photo', document.getElementById('photo').files[0]);
+
+    updateData(form, 'data');
   });
 
 if (userPasswordForm)
@@ -27,7 +28,6 @@ if (userPasswordForm)
     const passwordCurrent = document.getElementById('password-current').value;
     const password = document.getElementById('password').value;
     const passwordConfirm = document.getElementById('password-confirm').value;
-    console.log(email);
     await updateData(
       { passwordCurrent, password, passwordConfirm },
       'password'
@@ -54,7 +54,6 @@ if (loginform) {
     e.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    console.log('clicked');
     login(email, password);
   });
 }

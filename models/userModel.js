@@ -18,6 +18,7 @@ const userSchema = new Schema({
   },
   photo: {
     type: String,
+    default: 'default.jpg ',
   },
   role: {
     type: String,
@@ -32,7 +33,7 @@ const userSchema = new Schema({
   },
   passwordConfirm: {
     type: String,
-    required: [true, 'A Confirm Password is required'],
+    required: [false, 'A Confirm Password is required'],
     validate: {
       //Works on save only
       validator: function (val) {
@@ -80,7 +81,6 @@ userSchema.methods.changedPassAfter = function (timeStamp) {
       this.passwordChangedAt.getTime() / 1000,
       10
     );
-    console.log(changedTimestamp, timeStamp);
     return timeStamp < changedTimestamp;
   }
   return false;
@@ -93,8 +93,6 @@ userSchema.methods.createPasswordResetToken = function () {
     .createHash('sha256')
     .update(resestToken)
     .digest('hex');
-
-  console.log({ resestToken }, this.passwordResetToken);
 
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   return resestToken;

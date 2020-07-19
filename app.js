@@ -7,6 +7,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
+const compressor = require('compression');
 
 const AppError = require('./utils/appError');
 const globalError = require('./controllers/errorController');
@@ -26,6 +27,8 @@ app.use(express.static(`${__dirname}/public`)); //For  Accessing  static files  
 app.use(helmet());
 
 app.use(morgan('dev'));
+
+app.use(compressor());
 
 const limiter = rateLimit({
   max: 100,

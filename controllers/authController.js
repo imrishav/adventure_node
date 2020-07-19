@@ -90,7 +90,7 @@ exports.isLoggedIn = async (req, res, next) => {
         process.env.JWT_SECRET
       );
 
-      console.log(decoded);
+      // console.log(decoded);
 
       //3.Check if user still exists
       const freshUser = await User.findById(decoded.userId);
@@ -134,7 +134,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   //2.) Validate the token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-  console.log(decoded);
+  // console.log(decoded);
 
   //3.Check if user still exists
   const freshUser = await User.findById(decoded.userId);
@@ -179,7 +179,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     'host'
   )}/api/v1/users/resetPassword/${resetToken}`;
 
-  console.log(resetURl);
+  // console.log(resetURl);
 
   const message = `Forgot Password? Reset here : ${resetURl}`;
 
