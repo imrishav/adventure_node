@@ -13,7 +13,8 @@ mongoose
   })
   .then((con) => {
     console.log('DB Connection Succesfully');
-  });
+  })
+  .catch((err) => console.log(err));
 
 const port = 3002;
 app.listen(process.env.PORT, () => {
